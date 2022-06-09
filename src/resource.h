@@ -86,12 +86,12 @@ namespace cg
 	{
 		static color from_float3(const float3& in)
 		{
-						color color{.r:in.x, .g:in.y, .b:in.z};
+						color color{in.x, in.y, in.z};
 						return color;
 		};
 		float3 to_float3() const
 		{
-			return float3{x_:r, y_:g, z_:b};
+			return float3{r, g, b};
 		}
 		float r;
 		float g;
