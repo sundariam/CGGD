@@ -7,7 +7,6 @@
 
 void cg::renderer::ray_tracing_renderer::init()
 {
-	// TODO: Lab 2.01. Add render_target, camera, and raytracer in ray_tracing_renderer class
 	model = std::make_shared<cg::world::model>();
 	model->load_obj(settings->model_path);
 
