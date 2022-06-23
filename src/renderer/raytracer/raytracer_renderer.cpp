@@ -50,9 +50,14 @@ void cg::renderer::ray_tracing_renderer::render()
 	raytracer->clear_render_target({0, 0, 0});
 	raytracer->miss_shader = [](const ray& ray) {
 		payload payload{};
-		payload.color = {0.f, 0.f, (ray.direction.y + 1.f) * 0.5f};
+		//payload.color = {0.f, 0.f, (ray.direction.y + 1.f) * 0.5f};
+		payload.color = {0.f, 0.f, 0.f};
 		return payload;
 	};
+
+	std::random_device random_device;
+	std::mt19937 random_generator(random_device());
+	std::uniform_real_distribution<float> uniform_distribution(-1.f, 1.f);
 	raytracer->closest_hit_shader = [&](const ray& ray, payload& payload,
 										const triangle<cg::vertex>& triangle,
 										size_t depth){
@@ -62,9 +67,24 @@ void cg::renderer::ray_tracing_renderer::render()
 				payload.bary.y * triangle.nb +
 				payload.bary.z * triangle.nc
 				);
-
 		float3 result_color = triangle.emissive;
-		for (auto & light: lights)
+		float3 random_direction{
+				uniform_distribution(&random_generator),
+				uniform_distribution(&random_generator),
+				uniform_distribution(&random_generator)
+		};
+		if (dot(normal, random_direction) < 0.f)
+		{
+			random_direction = - random_direction;
+		}
+		cg::renderer::ray to_next_object(position, random_direction);
+		auto payload_next = raytracer->trace_ray(to_next_object, depth);
+
+
+		result_color += triangle.diffuse * payload_next.color.to_float3() *
+						std::max(dot(normal, to_next_object.direction), 0.f);
+
+		/*for (auto & light: lights)
 		{
 			cg::renderer::ray to_light(position, light.position - position);
 			auto shadow_payload = shadow_raytracer->trace_ray(
@@ -75,7 +95,8 @@ void cg::renderer::ray_tracing_renderer::render()
 				result_color += triangle.diffuse * light.color *
 								std::max(dot(normal, to_light.direction), 0.f);
 			}
-		}
+		}*/
+
 		payload.color = cg::color::from_float3(result_color);
 		return payload;
 	};
@@ -107,8 +128,4 @@ void cg::renderer::ray_tracing_renderer::render()
 	std::cout << "Raytracing took" << raytracing_duration.count() << "ms\n";
 
 	cg::utils::save_resource(*render_target, settings->result_path);
-
-	// TODO: Lab 2.04. Define any_hit_shader and miss_shader for shadow_raytracer
-	// TODO: Lab 2.04. Adjust closest_hit_shader of raytracer to cast shadows rays and to ignore occluded lights
-	// TODO: Lab 2.05. Adjust ray_tracing_renderer class to build the acceleration structure
 }
