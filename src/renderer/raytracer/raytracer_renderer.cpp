@@ -83,7 +83,6 @@ void cg::renderer::ray_tracing_renderer::render()
 
 		result_color += triangle.diffuse * payload_next.color.to_float3() *
 						std::max(dot(normal, to_next_object.direction), 0.f);
-
 		/*for (auto & light: lights)
 		{
 			cg::renderer::ray to_light(position, light.position - position);
