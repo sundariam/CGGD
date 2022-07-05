@@ -58,13 +58,20 @@ ComPtr<IDXGIFactory4> cg::renderer::dx12_renderer::get_dxgi_factory()
 #endif
 
 	ComPtr<IDXGIFactory4> dxgi_factory;
-	CreateDXGIFactory2(dxgi_factory_flags, IID_PPV_ARGS(&dxgi_factory));
+	THROW_IF_FAILED(CreateDXGIFactory2(dxgi_factory_flags, IID_PPV_ARGS(&dxgi_factory)));
 	return dxgi_factory;
 }
 
 void cg::renderer::dx12_renderer::initialize_device(ComPtr<IDXGIFactory4>& dxgi_factory)
 {
-	// TODO Lab 3.02. Enumerate hardware adapters
+	ComPtr<IDXGIAdapter1> hardware_adapter;
+	dxgi_factory->EnumAdapters1(0, &hardware_adapter);
+#ifdef _DEBUG
+	DXGI_ADAPTER_DESC adapter_desc = {};
+	hardware_adapter->GetDesc(&adapter_desc);
+	OutputDebugString(adapter_desc.Description);
+	OutputDebugString(L"\n");
+#endif
 	// TODO Lab 3.02. Create a device object
 }
 
