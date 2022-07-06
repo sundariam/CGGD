@@ -117,7 +117,10 @@ void cg::renderer::dx12_renderer::create_swap_chain(ComPtr<IDXGIFactory4>& dxgi_
 
 void cg::renderer::dx12_renderer::create_render_target_views()
 {
-	// TODO Lab 3.04. Create a descriptor heap for render targets
+	rtv_heap.create_heap(device,
+						 D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+						 frame_number
+						 );
 	// TODO Lab 3.04. Create render target views
 }
 
@@ -334,6 +337,5 @@ D3D12_GPU_DESCRIPTOR_HANDLE cg::renderer::descriptor_heap::get_gpu_descriptor_ha
 }
 ID3D12DescriptorHeap* cg::renderer::descriptor_heap::get() const
 {
-	// TODO Lab 3.04. Implement `create_heap`, `get_cpu_descriptor_handle`, `get_gpu_descriptor_handle`, and `get` methods of `cg::renderer::descriptor_heap`
     return heap.Get();
 }
