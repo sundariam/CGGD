@@ -47,12 +47,23 @@ void cg::renderer::dx12_renderer::destroy()
 
 void cg::renderer::dx12_renderer::update()
 {
-	// TODO Lab 3.08. Implement `update` method of `dx12_renderer`
+	// TODO Lab 3.08. Implement `update` method of `dx12_renderer
+
 }
 
 void cg::renderer::dx12_renderer::render()
 {
-	// TODO Lab 3.06. Implement `render` method
+	populate_command_list();
+
+	ID3D12CommandList* command_lists[] = {command_list.Get()};
+	command_queue->ExecuteCommandLists(
+			_countof(command_lists),
+			command_lists
+	);
+
+	THROW_IF_FAILED(swap_chain->Present(0, 0));
+
+	move_to_next_frame();
 }
 
 ComPtr<IDXGIFactory4> cg::renderer::dx12_renderer::get_dxgi_factory()
