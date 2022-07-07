@@ -47,7 +47,14 @@ void cg::renderer::dx12_renderer::destroy()
 
 void cg::renderer::dx12_renderer::update()
 {
-	// TODO Lab 3.08. Implement `update` method of `dx12_renderer
+	auto now = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<float> duration = now - current_time;
+	frame_duration = duration.count();
+	current_time = now;
+
+	cb.mwpMatrix = camera->get_dxm_mvp_matrix();
+
+	memcpy(constant_buffer_data_begin, &cb, sizeof(cb));
 
 }
 
@@ -515,7 +522,7 @@ void cg::renderer::dx12_renderer::populate_command_list()
 	command_list->SetGraphicsRootSignature(root_signature.Get());
 	ID3D12DescriptorHeap* heaps[] = {cbv_srv_heap.get()};
 	command_list->SetDescriptorHeaps(_countof(heaps), heaps);
-	command_list->SetComputeRootDescriptorTable(
+	command_list->SetGraphicsRootDescriptorTable(
 			0, cbv_srv_heap.get_gpu_descriptor_handle(0));
 	command_list->RSSetViewPorts(1, &view_port);
 	command-list->RSSetScissorRects(1, &scissor_rect);
