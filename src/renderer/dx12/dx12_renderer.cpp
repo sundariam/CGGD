@@ -231,12 +231,39 @@ std::filesystem::path cg::renderer::dx12_renderer::get_shader_path(const std::st
 
 ComPtr<ID3DBlob> cg::renderer::dx12_renderer::compile_shader(const std::filesystem::path& shader_path, const std::string& entrypoint, const std::string& target)
 {
-	// TODO Lab 3.05. Compile shaders
+	WCHAR buffer[MAX_PATH];
+	GetModuleFileName(nullptr, buffer, MAX_PATH);
+	auto shader_path =
+			std::filesystem::path(buffer).parent_path() / shader_name;
+	return shader_path;
 }
 
 void cg::renderer::dx12_renderer::create_pso(const std::string& shader_name)
 {
 	// TODO Lab 3.05. Setup a PSO descriptor and create a PSO
+	ComPtr<ID3DBlob> shader;
+	ComPtr<ID3DBlob> error;
+	UINT compile_flags = 0;
+#ifdef _DEBUG
+	compile_flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+	HRESULT result = D3DCompileFromFile(
+			shader_path.wstring().c_str(),
+			nullptr,
+			nullptr,
+			entrypoint.c_str(),
+			target.c_str(),
+			compile_flags,
+			0,
+			&shader,
+			&error);
+	if (FAILED(result))
+	{
+		OutputDebugStringA((char*)error->GetBufferPointer());
+		THROW_IF_FAILED(result);
+	}
+	return shader;
 }
 
 void cg::renderer::dx12_renderer::create_resource_on_upload_heap(ComPtr<ID3D12Resource>& resource, UINT size, const std::wstring& name)
